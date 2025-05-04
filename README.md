@@ -4,7 +4,7 @@
 
 This is a React web application for calculating the inductance and required tuning/matching capacitance values for MRI surface coils. It helps prototype and analyze coil designs based on user-defined physical and electrical parameters.
 
-## 🚀 Features
+## Features
 
 - Accepts user input for:
   - Coil diameter
@@ -17,13 +17,13 @@ This is a React web application for calculating the inductance and required tuni
 - Clean and responsive UI using CSS Modules
 - No Tailwind or external styling dependencies
 
-## 🧱 Tech Stack
+## Tech Stack
 
 - React + TypeScript
 - Vite
 - CSS Modules (no Tailwind)
 
-## 📦 Setup
+## Setup
 
 ```bash
 # Install dependencies
