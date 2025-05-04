@@ -1,0 +1,19 @@
+.table {
+    width: 100%;
+    margin-top: 1.5rem;
+    border-collapse: collapse;
+    border: 1px solid #9ca3af;
+    /* gray-400 */
+}
+
+.th,
+.td {
+    border: 1px solid #9ca3af;
+    padding: 0.5rem 1rem;
+    text-align: center;
+}
+
+.thead {
+    background-color: #e5e7eb;
+    /* gray-200 */
+}
