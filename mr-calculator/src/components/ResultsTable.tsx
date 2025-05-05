@@ -1,4 +1,3 @@
-// src/components/ResultsTable.tsx
 import React from "react";
 import styles from "./ResultsTable.module.css";
 
@@ -11,26 +10,27 @@ type Result = {
 
 const ResultsTable: React.FC<{ results: Result[] }> = ({ results }) => {
   return (
-    <table className={styles.table}>
-      <thead className={styles.thead}>
-        <tr>
-          <th className={styles.th}>Turns (n)</th>
-          <th className={styles.th}>Inductance (nH)</th>
-          <th className={styles.th}>Tuning Capacitance (pF)</th>
-          <th className={styles.th}>Matching Capacitance (pF)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {results.map((row) => (
-          <tr key={row.n}>
-            <td className={styles.td}>{row.n}</td>
-            <td className={styles.td}>{row.L_nH}</td>
-            <td className={styles.td}>{row.CT_pF}</td>
-            <td className={styles.td}>{row.CM_pF}</td>
+    <div>
+      <h3 className={styles.title}>Capacitors required for your coil:</h3>
+      <table className={styles.table}>
+        <thead className={styles.thead}>
+          <tr>
+            <th className={styles.th}>Number of turns for inductor</th>
+            <th className={styles.th}>Tuning capacitance (pF)</th>
+            <th className={styles.th}>Matching capacitance (pF)</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {results.map((row) => (
+            <tr key={row.n}>
+              <td className={styles.td}>{row.n}</td>
+              <td className={styles.td}>{row.CT_pF}</td>
+              <td className={styles.td}>{row.CM_pF}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

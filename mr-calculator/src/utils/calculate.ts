@@ -5,7 +5,8 @@ type InputParams = {
     coaxLengthMM: number;
     qFactor: number;
     parasiticCap: number;
-    coaxCapacitance?: number; // optional
+    coaxCapacitance?: number; // pF
+    coaxInductance?: number; // nH/m
 };
 
 export function calculateResults({
@@ -14,23 +15,42 @@ export function calculateResults({
     coaxLengthMM,
     qFactor,
     parasiticCap,
-    coaxCapacitance = 102,
+    coaxCapacitance = 102, // default pF/m
+    coaxInductance = 312,  // default nH/m
 }: InputParams) {
-    const a = 0.762;
-    const b = 0.448;
-    const p = 1.418;
     const turns = [1, 2, 3];
-    const f = frequencyMHz * 1e6; // MHz → Hz
-    const X = coaxLengthMM / 1000; // mm → meters
-    const c = coaxCapacitance * 1e-12; // pF → F/m
-    const cp = parasiticCap * 1e-12; // pF → F
+
+    // Constants
+    const L0 = 0.762; // nH
+    const k = 0.448;
+    const p = 1.418;
+    const D = diameterMM;
+
+    const f = frequencyMHz * 1e6; // Hz
+    const w = 2 * Math.PI * f;
+    const X = coaxLengthMM / 1000; // meters
+    const c = coaxCapacitance * 1e-12; // F/m
+    const l = coaxInductance * 1e-9; // H/m
+    const Cp = parasiticCap * 1e-12; // F
+
+    const Z0 = Math.sqrt(l / c);
 
     return turns.map((n) => {
-        const L_nH = Math.pow(n, 2) * (a * diameterMM + b * diameterMM * Math.log(p));
-        const L = L_nH * 1e-9; // nH → H
+        const L_nH = L0 + k * D * Math.log(D) * Math.pow(n, p); // Equation [8]
+        const L = L_nH * 1e-9; // H
 
-        const CT = 1 / (Math.pow(2 * Math.PI * f, 2) * L); // Farads
-        const CM = (qFactor / (2 * Math.PI * f * X * c)) - CT - cp; // Farads
+        // Equation [6]
+        const CT = (
+            (1 - (Math.pow(w, 2) * X * c * L) - (w * L) / (2 * qFactor * Z0)) /
+            (Math.pow(w, 2) * (L + X * l)) -
+            Cp
+        );
+
+        // Equation [7]
+        const CM = (
+            Math.sqrt((w * L) / (qFactor * Z0)) /
+            (Math.pow(w, 2) * qFactor * (L + X * l) + w * Z0)
+        );
 
         return {
             n,
