@@ -1,37 +1,50 @@
 import React, { useState } from "react";
 import { calculateResults } from "../utils/calculate";
 import ResultsTable from "./ResultsTable";
+import CalculatorInfo from "./CalculatorInfo";
 import styles from "./InputForm.module.css";
 
 const InputForm: React.FC = () => {
   const [inputs, setInputs] = useState({
-    diameterMM: 20,
-    frequencyMHz: 60,
-    coaxLengthMM: 50,
+    diameterMM: "",
+    frequencyMHz: "",
+    coaxLengthMM: "",
     qFactor: 60,
     parasiticCap: 9.9,
     coaxCapacitance: 102,
     coaxInductance: 312,
-  });
+  } as any); // 'as any' to allow string initial values temporarily
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showOptional, setShowOptional] = useState(false);
   const [results, setResults] = useState<any[]>([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputs({ ...inputs, [e.target.name]: parseFloat(e.target.value) });
+    const { name, value } = e.target;
+    setInputs({ ...inputs, [name]: value === "" ? "" : parseFloat(value) });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { [key: string]: string } = {};
 
-    if (inputs.frequencyMHz < 20 || inputs.frequencyMHz > 100)
-      newErrors.frequencyMHz = "Frequency must be between 20–100 MHz";
-    if (inputs.diameterMM < 10 || inputs.diameterMM > 30)
-      newErrors.diameterMM = "Diameter must be between 10–30 mm";
-    if (inputs.coaxLengthMM < 0 || inputs.coaxLengthMM > 200)
-      newErrors.coaxLengthMM = "Coax length must be between 0–200 mm";
+    if (inputs.frequencyMHz === "" || isNaN(inputs.frequencyMHz)) {
+      newErrors.frequencyMHz = "Please enter a frequency value.";
+    } else if (inputs.frequencyMHz < 20 || inputs.frequencyMHz > 100) {
+      newErrors.frequencyMHz = "Frequency must be between 20–100 MHz.";
+    }
+
+    if (inputs.diameterMM === "" || isNaN(inputs.diameterMM)) {
+      newErrors.diameterMM = "Please enter a diameter value.";
+    } else if (inputs.diameterMM < 10 || inputs.diameterMM > 30) {
+      newErrors.diameterMM = "Diameter must be between 10–30 mm.";
+    }
+
+    if (inputs.coaxLengthMM === "" || isNaN(inputs.coaxLengthMM)) {
+      newErrors.coaxLengthMM = "Please enter a coax length value.";
+    } else if (inputs.coaxLengthMM < 0 || inputs.coaxLengthMM > 200) {
+      newErrors.coaxLengthMM = "Coax length must be between 0–200 mm.";
+    }
 
     setErrors(newErrors);
 
@@ -46,10 +59,10 @@ const InputForm: React.FC = () => {
       <form onSubmit={handleSubmit} className={styles.form}>
         {/* Required Inputs */}
         {[
-          { id: "frequencyMHz", label: "Resonance frequency (MHz) [20–100]" },
-          { id: "diameterMM", label: "Inductor diameter (mm) [10–30]" },
-          { id: "coaxLengthMM", label: "Coax cable length (mm) [0–200]" },
-        ].map(({ id, label }) => (
+          { id: "frequencyMHz", label: "Resonance frequency (MHz) [20–100]", placeholder: "Enter frequency..." },
+          { id: "diameterMM", label: "Inductor diameter (mm) [10–30]", placeholder: "Enter diameter..." },
+          { id: "coaxLengthMM", label: "Coax cable length (mm) [0–200]", placeholder: "Enter length..." },
+        ].map(({ id, label, placeholder }) => (
           <div key={id} className={styles.inputGroup}>
             <label htmlFor={id} className={styles.label}>{label}</label>
             <input
@@ -57,9 +70,9 @@ const InputForm: React.FC = () => {
               type="number"
               name={id}
               id={id}
-              value={inputs[id as keyof typeof inputs]}
+              value={inputs[id] ?? ""}
+              placeholder={placeholder}
               onChange={handleChange}
-              required
             />
             {errors[id] && <p className={styles.error}>{errors[id]}</p>}
           </div>
@@ -77,8 +90,8 @@ const InputForm: React.FC = () => {
         {/* Optional Inputs */}
         {showOptional && (
           <div className={styles.optionalBox}>
-            <div className={styles.inputGroup}>
-              <div className={styles.inlineRow}>
+            <div className={styles.inputGroupVertical}>
+              <div className={styles.inlineInput}>
                 <label htmlFor="coaxInductance" className={styles.label}>
                   Coaxial cable inductance per meter (nH):
                 </label>
@@ -159,6 +172,7 @@ const InputForm: React.FC = () => {
       )}
 
       {results.length > 0 && <ResultsTable results={results} />}
+      <CalculatorInfo />
     </div>
   );
 };
